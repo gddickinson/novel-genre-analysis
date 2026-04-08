@@ -305,7 +305,7 @@ class GenreEvolution:
 
         # Draw nodes
         nx.draw_networkx_nodes(G, pos, node_color='lightblue',
-                             node_size=1000, alpha=0.7)
+                             node_size=500, alpha=0.7)
 
         # Draw edges with curved arrows
         nx.draw_networkx_edges(G, pos, edge_color='gray',
@@ -313,7 +313,7 @@ class GenreEvolution:
                              connectionstyle="arc3,rad=0.2")
 
         # Draw labels
-        nx.draw_networkx_labels(G, pos, font_size=8)
+        nx.draw_networkx_labels(G, pos, font_size=6)
 
         # Add timeline
         plt.axhline(y=0.5, color='gray', linestyle='--', alpha=0.3)
@@ -470,8 +470,8 @@ class GenreEvolution:
                 labels=labels,
                 with_labels=True,
                 node_color='lightblue',
-                node_size=2000,
-                font_size=8,
+                node_size=500,
+                font_size=6,
                 font_weight='bold')
 
         plt.title("Genre Evolution Tree")
