@@ -12,7 +12,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from analysis import create_distance_matrix, create_phylogenetic_tree  # noqa: E402
+import numpy as np  # noqa: E402
+
+from analysis import build_upgma_tree, create_distance_matrix, create_phylogenetic_tree  # noqa: E402
 from genre_database import load_genre_data  # noqa: E402
 
 FIXTURE = ROOT / "tests" / "fixtures" / "genre_tree.json"
@@ -23,6 +25,7 @@ SMALL = {  # the regression case from test_merged_cluster_keeps_matrix_row
     "B": {"date": 2000, "parents": [], "characteristics": ["p", "q"]},
     "C": {"date": 2005, "parents": [], "characteristics": ["p", "q"]},
 }
+HAND = [[0, 2, 4, 10], [2, 0, 4, 10], [4, 4, 0, 6], [10, 10, 6, 0]]  # test_upgma_hand_worked
 
 
 def node_dict(n):
@@ -41,6 +44,7 @@ def make():
         "condensed": [float(matrix[i, j]) for i in range(n) for j in range(i + 1, n)],
         "trees": [{"weights": list(w), "tree": node_dict(create_phylogenetic_tree(data, w))} for w in WEIGHT_SETS],
         "small": {"data": SMALL, "tree": node_dict(create_phylogenetic_tree(SMALL))},
+        "upgma_hand": {"matrix": HAND, "tree": node_dict(build_upgma_tree(list("ABCD"), np.array(HAND, float)))},
     }
 
 

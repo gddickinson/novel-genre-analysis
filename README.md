@@ -72,7 +72,7 @@ from genre_database import load_genre_data
 from analysis import create_phylogenetic_tree, analyze_genre_metrics, analyze_genre_characteristics
 
 genres = load_genre_data()                      # genre_data.json
-tree = create_phylogenetic_tree(genres)         # root Node of the average-linkage tree
+tree = create_phylogenetic_tree(genres)         # root Node of the UPGMA tree
 metrics = analyze_genre_metrics(genres)
 characteristics = analyze_genre_characteristics(genres)
 ```

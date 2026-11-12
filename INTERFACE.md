@@ -34,7 +34,8 @@
 - `Node` - tree node class with name, children, branch_length, height
 - `DEFAULT_WEIGHTS` - (0.4, 0.3, 0.3): time, parent, characteristic weights
 - `create_distance_matrix(genre_data, weights=DEFAULT_WEIGHTS)` - returns (genre_names, numpy_matrix)
-- `create_phylogenetic_tree(genre_data, weights=DEFAULT_WEIGHTS)` - average-linkage tree (merged rows are the plain mean of the two clusters), returns root Node
+- `create_phylogenetic_tree(genre_data, weights=DEFAULT_WEIGHTS)` - UPGMA tree from the genre distances, returns root Node
+- `build_upgma_tree(names, matrix)` - UPGMA (size-weighted average linkage) on any square distance matrix
 - `analyze_genre_metrics(genre_data)` - total genres, avg parents, hybrid genres, influential
 - `analyze_genre_characteristics(genre_data)` - most common, earliest, modern trends
 

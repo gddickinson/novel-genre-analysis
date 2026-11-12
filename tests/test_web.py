@@ -128,3 +128,4 @@ def test_tree_fixture_is_current():
     for s, f in zip(saved["trees"], fresh["trees"]):
         same(s["tree"], f["tree"])
     same(saved["small"]["tree"], fresh["small"]["tree"])
+    same(saved["upgma_hand"]["tree"], fresh["upgma_hand"]["tree"])

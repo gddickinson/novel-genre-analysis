@@ -65,7 +65,7 @@ route('tree', async (args, q) => {
   app().innerHTML = `
   <p class="kicker">Phylogeny</p><h1>Interactive tree</h1>
   <p class="lead">Genres joined closest-first by the combined date / parent / trait distance (the repository's
-  <code>create_phylogenetic_tree</code>). Horizontal position is the joining height (half the distance at which two
+  <code>create_phylogenetic_tree</code>, UPGMA). Horizontal position is the joining height (half the distance at which two
   clusters merge); leaves are coloured by first date.</p>
   <div class="side tree-side">
     <div class="panel">

@@ -18,3 +18,8 @@
   Holiday Romance (1940) and Academic Mystery (1930) are dated before one of their parents.
 - No LLM is used anywhere in the repo; the guides are committed Markdown and shown as is.
 - Tests: `pytest -q` 58 passed (tests/ 44, test_genre_evolution.py 14); node: genre_engine, markdown ok.
+
+## 2026-11-12 (later): follow-ups decided by George / the lead
+- **Fix:** tree building is now size-weighted UPGMA as documented (was WPGMA: equal-weight mean of the two merged
+  clusters). New `analysis.build_upgma_tree(names, matrix)`; tests: hand-worked 4-taxon example (root at 13/3) and
+  merge heights equal to scipy's average linkage on the real data. JS port and fixture updated to match.

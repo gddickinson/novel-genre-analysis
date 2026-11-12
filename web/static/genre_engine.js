@@ -1,4 +1,4 @@
-// Port of analysis.py (create_distance_matrix, _find_min_pair, _update_matrix, create_phylogenetic_tree) to plain JS,
+// Port of analysis.py (create_distance_matrix, _find_min_pair, _update_matrix, build_upgma_tree) to plain JS,
 // so the static site can rebuild the tree in the browser. Same arithmetic in the same order as the Python, checked by
 // genre_engine.test.mjs against tests/fixtures/genre_tree.json (written by scripts/make_tree_fixture.py).
 // Genres: either the genre_data.json object {name: {date, parents, characteristics}} or the /api/genres list.
@@ -56,8 +56,10 @@ function findMinPair(M) {
   return [mi, mj, min];
 }
 
-// Merge clusters i < j: the merged cluster stays at row i (mean of the two rows), row j is dropped.
-function updateMatrix(M, i, j) {
+// Merge clusters i < j (UPGMA): the merged cluster stays at row i, as the size-weighted mean of the two rows; row j is
+// dropped.
+function updateMatrix(M, i, j, si = 1, sj = 1) {
+  const total = si + sj;
   const n = M.length, keep = [];
   for (let k = 0; k < n; k++) if (k !== j) keep.push(k);
   const N = Array.from({ length: n - 1 }, () => new Float64Array(n - 1));
@@ -65,8 +67,8 @@ function updateMatrix(M, i, j) {
     for (let b = a + 1; b < n - 1; b++) {
       const oa = keep[a], ob = keep[b];
       let d;
-      if (oa === i) d = (M[i][ob] + M[j][ob]) / 2.0;
-      else if (ob === i) d = (M[oa][i] + M[oa][j]) / 2.0;
+      if (oa === i) d = (si * M[i][ob] + sj * M[j][ob]) / total;
+      else if (ob === i) d = (si * M[oa][i] + sj * M[oa][j]) / total;
       else d = M[oa][ob];
       N[a][b] = d; N[b][a] = d;
     }
@@ -74,22 +76,28 @@ function updateMatrix(M, i, j) {
   return N;
 }
 
-// The tree as nested { name, branch_length, height, children? } (same shape as /api/tree).
-export function buildTree(genres, weights = DEFAULT_WEIGHTS) {
-  const { names, D } = distanceMatrix(genres, weights);
+// UPGMA on a square matrix (rows: arrays or Float64Arrays), as analysis.build_upgma_tree. Returns nested
+// { name, branch_length, height, children? } (same shape as /api/tree).
+export function buildUpgma(names, D) {
   let M = D.map(r => Float64Array.from(r));
   const nodes = names.map(name => ({ name, branch_length: 0.0, height: 0.0 }));
+  const sizes = names.map(() => 1);
   while (nodes.length > 1) {
     const [i, j, dist] = findMinPair(M);
     const h = dist / 2.0;
     nodes[i].branch_length = h - nodes[i].height;
     nodes[j].branch_length = h - nodes[j].height;
     const node = { name: `Internal_${nodes.length}`, branch_length: 0.0, height: h, children: [nodes[i], nodes[j]] };
-    nodes[i] = node;
-    nodes.splice(j, 1);
-    M = updateMatrix(M, i, j);
+    M = updateMatrix(M, i, j, sizes[i], sizes[j]);
+    nodes[i] = node; sizes[i] += sizes[j];
+    nodes.splice(j, 1); sizes.splice(j, 1);
   }
   return nodes[0];
+}
+
+export function buildTree(genres, weights = DEFAULT_WEIGHTS) {
+  const { names, D } = distanceMatrix(genres, weights);
+  return buildUpgma(names, D);
 }
 
 export function leaves(node, out = []) {

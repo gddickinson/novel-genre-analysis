@@ -89,11 +89,17 @@ def _find_min_pair(matrix):
     return min_i, min_j, min_dist
 
 
-def _update_matrix(old_matrix, i, j):
-    """Create new matrix after merging clusters i and j (UPGMA)."""
+def _update_matrix(old_matrix, i, j, size_i=1, size_j=1):
+    """Create new matrix after merging clusters i and j (UPGMA).
+
+    The merged cluster stays at row i and row j is dropped. Its distance to every other cluster k is the
+    size-weighted mean (size_i * d(i, k) + size_j * d(j, k)) / (size_i + size_j), i.e. the average distance over
+    all pairs of genres between the two clusters.
+    """
     n = old_matrix.shape[0]
     new_size = n - 1
     new_matrix = np.zeros((new_size, new_size))
+    total = float(size_i + size_j)
 
     new_to_old = [k for k in range(n) if k != j]
 
@@ -103,9 +109,9 @@ def _update_matrix(old_matrix, i, j):
             old_j = new_to_old[new_j]
 
             if old_i == i:
-                dist = (old_matrix[i, old_j] + old_matrix[j, old_j]) / 2.0
+                dist = (size_i * old_matrix[i, old_j] + size_j * old_matrix[j, old_j]) / total
             elif old_j == i:
-                dist = (old_matrix[old_i, i] + old_matrix[old_i, j]) / 2.0
+                dist = (size_i * old_matrix[old_i, i] + size_j * old_matrix[old_i, j]) / total
             else:
                 dist = old_matrix[old_i, old_j]
 
@@ -113,6 +119,42 @@ def _update_matrix(old_matrix, i, j):
             new_matrix[new_j, new_i] = dist
 
     return new_matrix
+
+
+def build_upgma_tree(names, matrix):
+    """
+    UPGMA on a square distance matrix: repeatedly join the closest pair of clusters at half their distance.
+
+    Args:
+        names: Leaf names, in matrix order.
+        matrix: Symmetric numpy distance matrix.
+
+    Returns:
+        Root Node of the tree.
+    """
+    matrix = np.array(matrix, dtype=float)
+    nodes = [Node(name) for name in names]
+    sizes = [1] * len(nodes)
+
+    while len(nodes) > 1:
+        i, j, dist = _find_min_pair(matrix)
+
+        new_node = Node(f"Internal_{len(nodes)}")
+        branch_length = dist / 2.0
+        nodes[i].branch_length = branch_length - nodes[i].height
+        nodes[j].branch_length = branch_length - nodes[j].height
+
+        new_node.children = [nodes[i], nodes[j]]
+        new_node.height = branch_length
+
+        # _update_matrix keeps the merged cluster at row i and drops row j: mirror that in the lists.
+        matrix = _update_matrix(matrix, i, j, sizes[i], sizes[j])
+        nodes[i] = new_node
+        sizes[i] += sizes[j]
+        nodes.pop(j)
+        sizes.pop(j)
+
+    return nodes[0]
 
 
 def create_phylogenetic_tree(genre_data, weights=DEFAULT_WEIGHTS):
@@ -127,25 +169,7 @@ def create_phylogenetic_tree(genre_data, weights=DEFAULT_WEIGHTS):
         Root Node of the constructed tree.
     """
     genres, matrix = create_distance_matrix(genre_data, weights)
-    nodes = [Node(name) for name in genres]
-
-    while len(nodes) > 1:
-        i, j, dist = _find_min_pair(matrix)
-
-        new_node = Node(f"Internal_{len(nodes)}")
-        branch_length = dist / 2.0
-        nodes[i].branch_length = branch_length - nodes[i].height
-        nodes[j].branch_length = branch_length - nodes[j].height
-
-        new_node.children = [nodes[i], nodes[j]]
-        new_node.height = branch_length
-
-        # _update_matrix keeps the merged cluster at row i and drops row j: mirror that in the node list.
-        nodes[i] = new_node
-        nodes.pop(j)
-        matrix = _update_matrix(matrix, i, j)
-
-    return nodes[0]
+    return build_upgma_tree(genres, matrix)
 
 
 def analyze_genre_metrics(genre_data):

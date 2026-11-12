@@ -2,7 +2,7 @@
 // scripts/make_tree_fixture.py from the Python code) on the real genre_data.json.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { distanceMatrix, buildTree, leaves, components, nearest, DEFAULT_WEIGHTS } from './genre_engine.js';
+import { distanceMatrix, buildTree, buildUpgma, leaves, components, nearest, DEFAULT_WEIGHTS } from './genre_engine.js';
 
 const read = rel => JSON.parse(readFileSync(new URL(rel, import.meta.url), 'utf8'));
 const data = read('../../genre_data.json');
@@ -31,6 +31,12 @@ for (const { weights, tree } of fx.trees) {
   assert.equal(leaves(t).length, names.length);
 }
 same(buildTree(fx.small.data), fx.small.tree, 'small');
+
+// Hand-worked UPGMA (same case as test_upgma_hand_worked): d(ABC, D) = (2*10 + 6) / 3, so the root is at 13/3.
+const hw = buildUpgma(['A', 'B', 'C', 'D'], [[0, 2, 4, 10], [2, 0, 4, 10], [4, 4, 0, 6], [10, 10, 6, 0]]);
+close(hw.height, 13 / 3, 'hand-worked root');
+close(hw.children[0].height, 2, 'hand-worked ABC');
+same(hw, fx.upgma_hand.tree, 'hand-worked vs Python');
 
 // The /api/genres list form gives the same result as the raw dict.
 const list = Object.entries(data).map(([name, g]) => ({ name, ...g }));

@@ -10,6 +10,8 @@ import sys
 import json
 import tempfile
 
+import numpy as np
+
 # Ensure project root is on path
 project_dir = os.path.dirname(os.path.abspath(__file__))
 if project_dir not in sys.path:
@@ -22,7 +24,24 @@ from analysis import (
     analyze_genre_metrics,
     analyze_genre_characteristics,
     Node,
+    build_upgma_tree,
 )
+
+
+def _internal_nodes(node):
+    if not node.children:
+        return []
+    return [node] + [n for c in node.children for n in _internal_nodes(c)]
+
+
+def _leaf(node, name):
+    if not node.children:
+        return node if node.name == name else None
+    for c in node.children:
+        hit = _leaf(c, name)
+        if hit:
+            return hit
+    return None
 
 
 class TestGenreDatabase(unittest.TestCase):
@@ -133,6 +152,36 @@ class TestPhylogeneticTree(unittest.TestCase):
         heights = sorted(c.height for c in root.children)
         self.assertAlmostEqual(heights[0], matrix[1, 2] / 2)  # (B, C)
         self.assertAlmostEqual(heights[1], matrix[0, 3] / 2)  # (A, D)
+
+    def test_upgma_hand_worked(self):
+        """UPGMA weights merged clusters by size (worked by hand).
+
+        d(A,B)=2, d(A,C)=d(B,C)=4, d(A,D)=d(B,D)=10, d(C,D)=6.
+        1. join A,B at height 1; d(AB,C)=4, d(AB,D)=10.
+        2. join AB,C at height 2; d(ABC,D) = (2*10 + 1*6) / 3 = 26/3 (WPGMA would give (10+6)/2 = 8).
+        3. join ABC,D at height 13/3.
+        """
+        m = np.array([[0, 2, 4, 10], [2, 0, 4, 10], [4, 4, 0, 6], [10, 10, 6, 0]], dtype=float)
+        root = build_upgma_tree(["A", "B", "C", "D"], m)
+        self.assertAlmostEqual(root.height, 13 / 3)
+        heights = sorted(n.height for n in _internal_nodes(root))
+        np.testing.assert_allclose(heights, [1, 2, 13 / 3])
+        for leaf in ("A", "B"):
+            self.assertAlmostEqual(_leaf(root, leaf).branch_length, 1.0)
+        self.assertAlmostEqual(_leaf(root, "D").branch_length, 13 / 3)
+
+    def test_upgma_matches_scipy_average_linkage(self):
+        """Merge heights equal scipy's average linkage (UPGMA) on the real genre distances."""
+        try:
+            from scipy.cluster.hierarchy import linkage
+            from scipy.spatial.distance import squareform
+        except ImportError:
+            self.skipTest("scipy not installed")
+        data = load_genre_data()
+        _, matrix = create_distance_matrix(data)
+        ref = sorted(linkage(squareform(matrix, checks=False), method="average")[:, 2] / 2)
+        ours = sorted(n.height for n in _internal_nodes(create_phylogenetic_tree(data)))
+        np.testing.assert_allclose(ours, ref, rtol=1e-9, atol=1e-12)
 
     def test_node_attributes(self):
         """Node has expected attributes."""

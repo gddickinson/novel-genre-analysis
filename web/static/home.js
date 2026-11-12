@@ -45,8 +45,9 @@ route('about', async () => {
   <p>For each pair of genres, <code>analysis.create_distance_matrix</code> combines three parts:</p>
   <p class="eq">d = 0.4 · |date₁ − date₂| / 1000 + 0.3 · (1 − J(parents)) + 0.3 · (1 − J(traits))</p>
   <p>where J is the Jaccard index (shared / union); a part is 1 when either genre has no parents (or no traits).
-  <code>create_phylogenetic_tree</code> then repeatedly joins the closest pair of clusters at half their distance; the
-  distance from the joined cluster to every other cluster is the plain mean of its two halves' distances. The
+  <code>create_phylogenetic_tree</code> then repeatedly joins the closest pair of clusters at half their distance (UPGMA): the
+  distance from the joined cluster to every other cluster is the size-weighted mean of its two halves' distances, i.e.
+  the average distance over all genre pairs between the clusters. The
   <a href="#/tree">tree page</a> runs a JavaScript port of exactly this code (checked against the Python output in
   the test suite), so you can also try other weights.</p>
   <div class="callout small">Data notes: dates are the first dates recorded in <code>genre_data.json</code>, not
