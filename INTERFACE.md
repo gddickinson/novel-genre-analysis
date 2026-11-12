@@ -11,6 +11,17 @@
 | `visualization.py` | Timeline graph and phylogenetic tree plotting (networkx + matplotlib) |
 | `genre-evolution.py` | Original monolithic file (retained for reference) |
 | `test_genre_evolution.py` | Test suite for data loading, distance, tree, and metrics |
+| `guides/` | Markdown writing guides (`<slug>-guide.md`), shown by the web app |
+| `run_web.py` | Starts the web app on http://127.0.0.1:8170 |
+| `web/app.py` | FastAPI app: `/api/info`, `/genres`, `/analysis`, `/tree` (weights as query), `/guides`, `/guides/{slug}`; `STATIC_ENDPOINTS` |
+| `web/data.py` | API data from `genre_database`, `analysis` and `guides/` (`genres`, `tree_dict`, `analysis_summary`, `guides`, `guide`, `GUIDE_GENRES` links) |
+| `web/static/` | ES-module front end (no build step): `main.js` router setup, `core.js`/`style.css` shared kit, `ui.js` helpers, one module per page (`home`, `genres`, `traits`, `tree`, `distance`, `timeline`, `analysis`, `guides`), `markdown.js` renderer, `static_api.js` (static-site data) |
+| `web/static/genre_engine.js` | JS port of `create_distance_matrix` / `create_phylogenetic_tree` (+ `components`, `nearest`, `newick`); tested by `genre_engine.test.mjs` |
+| `scripts/build_static.py` | Exports the static GitHub Pages site to `site/` |
+| `scripts/screenshots.py` | Browser smoke test and README screenshots (`docs/img/`) |
+| `scripts/make_tree_fixture.py` | Writes `tests/fixtures/genre_tree.json` (Python distances/trees for the JS test) |
+| `tests/test_web.py` | API, static build, JS (node) tests, fixture-is-current check |
+| `.github/workflows/pages.yml` | Builds and publishes the static site on push to main |
 | `_archive/` | Previous versions of the code |
 
 ## Key Classes and Functions
@@ -21,8 +32,9 @@
 
 ### analysis.py
 - `Node` - tree node class with name, children, branch_length, height
-- `create_distance_matrix(genre_data)` - returns (genre_names, numpy_matrix)
-- `create_phylogenetic_tree(genre_data)` - UPGMA tree construction, returns root Node
+- `DEFAULT_WEIGHTS` - (0.4, 0.3, 0.3): time, parent, characteristic weights
+- `create_distance_matrix(genre_data, weights=DEFAULT_WEIGHTS)` - returns (genre_names, numpy_matrix)
+- `create_phylogenetic_tree(genre_data, weights=DEFAULT_WEIGHTS)` - average-linkage tree (merged rows are the plain mean of the two clusters), returns root Node
 - `analyze_genre_metrics(genre_data)` - total genres, avg parents, hybrid genres, influential
 - `analyze_genre_characteristics(genre_data)` - most common, earliest, modern trends
 
@@ -37,4 +49,5 @@ genre_data.json -> genre_database.py (load + validate)
                 -> analysis.py (metrics + tree)
                 -> visualization.py (plots)
                 -> main.py (orchestrate all)
+                -> web/data.py -> web/app.py (JSON API) -> web/static (browser; genre_engine.js mirrors analysis.py)
 ```

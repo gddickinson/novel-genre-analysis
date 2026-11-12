@@ -28,6 +28,19 @@ The project generates two main visualizations:
    - Shows evolutionary relationships
    - Highlights genre family groupings
 
+## Web Interface
+
+Explore the analysis in a browser: an interactive genre tree (collapse clades, search, change the distance weights),
+the genre x trait matrix, pairwise distance breakdowns and heatmap, a lineage timeline, the analysis metrics and the
+writing guides. `pip install -r requirements-web.txt && python run_web.py` (http://127.0.0.1:8170).
+`python scripts/build_static.py` builds the GitHub Pages site (https://gddickinson.github.io/novel-genre-analysis/):
+the distance and tree code is ported to JavaScript (`web/static/genre_engine.js`, tested against `analysis.py`), so
+the static site rebuilds the tree in the browser.
+
+| Home | Interactive tree | Trait matrix | Distances | Lineage timeline | Writing guide |
+|---|---|---|---|---|---|
+| ![Home page](docs/img/home.png) | ![Interactive genre tree](docs/img/tree.png) | ![Genre by trait matrix](docs/img/traits.png) | ![Distance breakdown and heatmap](docs/img/distance.png) | ![Lineage arc diagram](docs/img/timeline.png) | ![Fantasy writing guide](docs/img/guide_fantasy.png) |
+
 ## Installation
 
 ```bash

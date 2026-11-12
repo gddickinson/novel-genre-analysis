@@ -20,16 +20,21 @@ class Node:
         self.height = 0.0
 
 
-def create_distance_matrix(genre_data):
+DEFAULT_WEIGHTS = (0.4, 0.3, 0.3)  # (time, parents, characteristics)
+
+
+def create_distance_matrix(genre_data, weights=DEFAULT_WEIGHTS):
     """
     Create a full distance matrix from the genre database.
 
     Args:
         genre_data: Genre database dictionary.
+        weights: (time, parent, characteristic) weights of the combined distance.
 
     Returns:
         Tuple of (sorted genre names list, numpy distance matrix).
     """
+    w_time, w_parent, w_char = weights
     genres = sorted(list(genre_data.keys()))
     n = len(genres)
     matrix = np.zeros((n, n))
@@ -62,7 +67,7 @@ def create_distance_matrix(genre_data):
                     char_dist = 1.0 - (shared / total)
 
             # Combine distances
-            dist = float((0.4 * time_dist) + (0.3 * parent_dist) + (0.3 * char_dist))
+            dist = float((w_time * time_dist) + (w_parent * parent_dist) + (w_char * char_dist))
             matrix[i, j] = dist
             matrix[j, i] = dist
 
@@ -110,17 +115,18 @@ def _update_matrix(old_matrix, i, j):
     return new_matrix
 
 
-def create_phylogenetic_tree(genre_data):
+def create_phylogenetic_tree(genre_data, weights=DEFAULT_WEIGHTS):
     """
     Build a UPGMA tree from genre data.
 
     Args:
         genre_data: Genre database dictionary.
+        weights: (time, parent, characteristic) weights passed to create_distance_matrix.
 
     Returns:
         Root Node of the constructed tree.
     """
-    genres, matrix = create_distance_matrix(genre_data)
+    genres, matrix = create_distance_matrix(genre_data, weights)
     nodes = [Node(name) for name in genres]
 
     while len(nodes) > 1:

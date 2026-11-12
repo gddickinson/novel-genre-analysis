@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genre Phylogeny</title>
+<meta name="description" content="A phylogeny of 126 novel and literary genres built from their dates, parent genres and traits, with an interactive tree, trait explorer and writing guides.">
+<link rel="icon" href="static/icon.svg">
+<link rel="stylesheet" href="static/style.css">
+<link rel="stylesheet" href="static/style_app.css">
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<header class="top">
+  <a class="brand" href="#/"><span class="mark"></span>Genre Phylogeny</a>
+  <nav class="groups">
+    <a href="#/genres" data-nav="genres">Genres</a>
+    <a href="#/traits" data-nav="traits">Traits</a>
+    <details><summary>Phylogeny</summary><div class="menu">
+      <a href="#/tree" data-nav="tree">Interactive tree</a>
+      <a href="#/distance" data-nav="distance">Distances</a>
+      <a href="#/timeline" data-nav="timeline">Lineage timeline</a>
+      <a href="#/analysis" data-nav="analysis">Analysis results</a>
+    </div></details>
+    <a href="#/guides" data-nav="guides">Writing guides</a>
+    <a href="#/about" data-nav="about">About</a>
+  </nav>
+  <div class="right"><a class="small mute" href="https://github.com/gddickinson/novel-genre-analysis" target="_blank" rel="noopener">GitHub</a></div>
+</header>
+<main id="app" tabindex="-1"></main>
+<footer class="foot">Genre Phylogeny · <a href="https://github.com/gddickinson/novel-genre-analysis">source on GitHub</a> · <span id="mode"></span></footer>
+<script type="module" src="static/main.js"></script>
+</body>
+</html>
