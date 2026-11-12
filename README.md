@@ -31,8 +31,8 @@ The project generates two main visualizations:
 ## Installation
 
 ```bash
-git clone https://github.com/gddickinson/genre-evolution.git
-cd genre-evolution
+git clone https://github.com/gddickinson/novel-genre-analysis.git
+cd novel-genre-analysis
 pip install -r requirements.txt
 ```
 
@@ -46,31 +46,37 @@ pip install -r requirements.txt
 
 ## Usage
 
-```python
-from genre_evolution import GenreEvolution
+Run the whole pipeline (saves `genre_timeline.png` and `genre_phylogeny.png`, prints the metrics):
 
-# Create analyzer instance
-analyzer = GenreEvolution()
-
-# Generate visualizations
-analyzer.create_timeline_graph()
-analyzer.create_phylogenetic_tree()
-
-# Analyze genre characteristics
-metrics = analyzer.analyze_genre_metrics()
-characteristics = analyzer.analyze_genre_characteristics()
+```bash
+python main.py
 ```
+
+Or use the modules directly:
+
+```python
+from genre_database import load_genre_data
+from analysis import create_phylogenetic_tree, analyze_genre_metrics, analyze_genre_characteristics
+
+genres = load_genre_data()                      # genre_data.json
+tree = create_phylogenetic_tree(genres)         # root Node of the average-linkage tree
+metrics = analyze_genre_metrics(genres)
+characteristics = analyze_genre_characteristics(genres)
+```
+
+Tests: `python -m pytest -q test_genre_evolution.py`.
 
 ## Project Structure
 
 ```
-├── genre-evolution.py     # Main analysis code
-├── genre_timeline.png     # Timeline visualization
-├── genre_phylogeny.png    # Evolutionary tree visualization
-├── guides/               # Writing guides for different genres
-│   ├── mystery-guide.md
-│   ├── cozy-mystery-guide.md
-│   └── ...
+├── main.py                # CLI: runs the analysis and saves the plots
+├── genre_database.py      # loads genre_data.json, validates parent links
+├── genre_data.json        # the genre database (date, parents, characteristics)
+├── analysis.py            # distance matrix, tree building, metrics
+├── visualization.py       # timeline graph and tree plots
+├── test_genre_evolution.py
+├── genre-evolution.py     # original single-file version (reference only)
+├── guides/                # writing guides for different genres
 └── README.md
 ```
 
