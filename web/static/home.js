@@ -51,9 +51,9 @@ route('about', async () => {
   <a href="#/tree">tree page</a> runs a JavaScript port of exactly this code (checked against the Python output in
   the test suite), so you can also try other weights.</p>
   <div class="callout small">Data notes: dates are the first dates recorded in <code>genre_data.json</code>, not
-  scholarly claims made by this site. Three genres are dated earlier than one of their parents (see
-  <a href="#/analysis">Analysis</a>), and the data has both "Cli-Fi" and "Climate Fiction", and both "Solar Punk" and
-  "Solarpunk", as separate entries.</div>
+  scholarly claims made by this site. Genres dated earlier than one of their parents carry a <code>date_note</code> in
+  the data and are flagged on their pages (list under <a href="#/analysis">Analysis</a>). Duplicate entries were merged:
+  "Climate Fiction" is an alias of Cli-Fi, and "Solar Punk" of Solarpunk.</div>
   <h2>Run it</h2>
   <h3>Analysis (command line)</h3>
   <pre>pip install -r requirements.txt

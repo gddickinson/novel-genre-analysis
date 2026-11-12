@@ -45,7 +45,8 @@ route('analysis', async () => {
   <div class="panel">
     <p>${a.dangling_parents.length ? `${a.dangling_parents.length} parent links point at genres that are not in the data.`
       : 'Every parent named in genre_data.json is itself a genre in the data (<code>validate_parent_references</code>).'}</p>
-    <p>${late.length} genre${late.length === 1 ? ' is' : 's are'} dated earlier than a parent:</p>
-    <ul>${list(late, ([g, p]) => `<li>${glink(g.name)} (${fmtDate(g.date)}) has parent ${glink(p.name)} (${fmtDate(p.date)})</li>`)}</ul>
+    <p>${late.length} genre${late.length === 1 ? ' is' : 's are'} dated earlier than a parent; the dates are kept as
+    recorded and flagged with a <code>date_note</code> in the data:</p>
+    <ul>${list(late, ([g, p]) => `<li>${glink(g.name)} (${fmtDate(g.date)}) has parent ${glink(p.name)} (${fmtDate(p.date)})${g.date_note ? '' : ' <span class="err">(no date_note)</span>'}</li>`)}</ul>
   </div>`;
 });

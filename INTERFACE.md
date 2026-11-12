@@ -6,7 +6,7 @@
 |------|---------|
 | `main.py` | CLI entry point; loads data, runs analysis, generates visualizations |
 | `genre_database.py` | Loads genre data from JSON, validates parent references |
-| `genre_data.json` | Genre database: 120+ genres with dates, parents, characteristics |
+| `genre_data.json` | Genre database: 124 genres with dates, parents, characteristics (optional `aliases`, `date_note`) |
 | `analysis.py` | Distance matrix, UPGMA tree construction, metric analysis |
 | `visualization.py` | Timeline graph and phylogenetic tree plotting (networkx + matplotlib) |
 | `genre-evolution.py` | Original monolithic file (retained for reference) |

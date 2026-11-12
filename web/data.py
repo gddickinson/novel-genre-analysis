@@ -20,10 +20,10 @@ from genre_database import load_genre_data, validate_parent_references
 ROOT = Path(__file__).resolve().parent.parent
 GUIDES = ROOT / "guides"
 
-# Navigation links from a guide to genre entries of exactly the same name in genre_data.json (both spellings of
-# climate fiction exist in the data). Guides with no same-named genre entry are not linked.
+# Navigation links from a guide to the genre entry of the same name (or alias) in genre_data.json. Guides with no
+# matching genre entry are not linked.
 GUIDE_GENRES = {
-    "adventure": ["Adventure Fiction"], "climate-fiction": ["Climate Fiction", "Cli-Fi"],
+    "adventure": ["Adventure Fiction"], "climate-fiction": ["Cli-Fi"],
     "cozy-mystery": ["Cozy Mystery"], "crime-fiction": ["Crime Fiction"], "fantasy": ["Fantasy"],
     "gothic-fiction": ["Gothic Fiction"], "historical-fiction": ["Historical Fiction"], "horror": ["Horror"],
     "literary-fiction": ["Literary Fiction"], "magical-realism": ["Magical Realism"], "mystery": ["Mystery"],
@@ -58,7 +58,7 @@ def genres():
     return [
         {"name": n, "date": data[n]["date"], "parents": data[n]["parents"],
          "characteristics": data[n]["characteristics"], "children": sorted(children.get(n, [])),
-         "guide": links.get(n)}
+         "guide": links.get(n), "aliases": data[n].get("aliases", []), "date_note": data[n].get("date_note")}
         for n in sorted(data)
     ]
 
@@ -90,6 +90,7 @@ def analysis_summary():
         "earliest": sorted(([k, int(v)] for k, v in c["earliest"].items()), key=lambda kv: (kv[1], kv[0])),
         "modern_trends": [[k, int(v)] for k, v in c["modern_trends"].items()],
         "dangling_parents": [list(t) for t in validate_parent_references(data)],
+        "date_notes": [[n, d["date_note"]] for n, d in sorted(data.items()) if d.get("date_note")],
         "weights": list(DEFAULT_WEIGHTS),
     }
 

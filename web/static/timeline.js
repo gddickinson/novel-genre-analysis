@@ -26,7 +26,7 @@ route('timeline', async () => {
   from each parent genre to each offspring, coloured by the offspring's date. Select a genre to highlight its parents
   and offspring.</p>
   ${legend()}
-  <p id="sel" class="small" aria-live="polite">${late.length ? `${late.length} links run upward because the data dates the offspring before its parent.` : ''}</p>
+  <p id="sel" class="small" aria-live="polite">${late.length ? `${late.length} links run upward because the data dates the offspring before its parent (flagged with a date note).` : ''}</p>
   <div class="stage tl-stage"><svg class="timeline" viewBox="0 0 ${W} ${H}" role="group" aria-label="Arc diagram of parent links">
     <g class="arcs">${arcs.join('')}</g>${rows.join('')}</svg></div>`;
   const svg = $('.timeline');

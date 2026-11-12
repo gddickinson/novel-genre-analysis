@@ -23,3 +23,11 @@
 - **Fix:** tree building is now size-weighted UPGMA as documented (was WPGMA: equal-weight mean of the two merged
   clusters). New `analysis.build_upgma_tree(names, matrix)`; tests: hand-worked 4-taxon example (root at 13/3) and
   merge heights equal to scipy's average linkage on the real data. JS port and fixture updated to match.
+- **Fix (data):** merged duplicate genres, keeping the entry with more parents/traits and recording the other name in
+  a new optional `aliases` field: Cli-Fi (alias "Climate Fiction"), Solarpunk (alias "Solar Punk"). 124 genres now.
+- **Fix (data):** Science Fiction (1818), Holiday Romance (1940) and Academic Mystery (1930) are dated before a parent;
+  dates kept as recorded (not invented), flagged with a new optional `date_note` field, shown on the site. Tests:
+  `TestDataQuality` (aliases are not entries; date_note exactly on genres dated before a parent).
+- Regenerated `genre_phylogeny.png` with the fixed UPGMA and merged data (`plot_phylogenetic_tree`, dpi 300; the
+  timeline PNG was left alone because it uses random y positions). The plot's layout (child spacing halves per
+  level) crowds the many-leaf clades; not changed.

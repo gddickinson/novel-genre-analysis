@@ -84,6 +84,26 @@ class TestGenreDatabase(unittest.TestCase):
         self.assertEqual(dangling[0], ("A", "NonExistent"))
 
 
+class TestDataQuality(unittest.TestCase):
+    """Consistency checks on genre_data.json."""
+
+    def test_aliases_are_not_separate_entries(self):
+        """A merged duplicate lives on only as an alias, never as its own entry."""
+        data = load_genre_data()
+        aliases = [a for g in data.values() for a in g.get("aliases", [])]
+        self.assertEqual(len(aliases), len(set(aliases)))
+        self.assertEqual([a for a in aliases if a in data], [])
+        self.assertIn("Climate Fiction", data["Cli-Fi"]["aliases"])
+        self.assertIn("Solar Punk", data["Solarpunk"]["aliases"])
+
+    def test_dates_before_a_parent_are_flagged(self):
+        """Every genre dated before one of its parents has a date_note (and only those)."""
+        data = load_genre_data()
+        early = {n for n, g in data.items() if any(data[p]["date"] > g["date"] for p in g["parents"])}
+        noted = {n for n, g in data.items() if g.get("date_note")}
+        self.assertEqual(early, noted)
+
+
 class TestDistanceMatrix(unittest.TestCase):
     """Tests for distance matrix construction."""
 

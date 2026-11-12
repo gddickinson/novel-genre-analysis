@@ -22,12 +22,12 @@ route('genres', async (args, q) => {
   <div class="scroll"><table class="gtable"><thead><tr><th>Genre</th><th>Date</th><th>Parents</th><th>Traits</th></tr></thead><tbody id="rows"></tbody></table></div>`;
   const draw = () => {
     const words = $('#f-q').value.trim().toLowerCase(), era = $('#f-era').value, kind = $('#f-kind').value;
-    const rows = all.filter(g => (!words || g.name.toLowerCase().includes(words) || g.characteristics.some(c => c.toLowerCase().includes(words)))
+    const rows = all.filter(g => (!words || [g.name, ...g.aliases].some(x => x.toLowerCase().includes(words)) || g.characteristics.some(c => c.toLowerCase().includes(words)))
       && (!era || eraOf(g.date).key === era)
       && (!kind || (kind === 'hybrid' ? g.parents.length > 1 : kind === 'root' ? !g.parents.length : !!g.guide)));
     $('#count').textContent = `${rows.length} of ${all.length} genres`;
-    $('#rows').innerHTML = list(rows, g => `<tr><td>${swatch(g.date)}${glink(g.name)}${g.guide ? ' <span class="tag c">guide</span>' : ''}</td>
-      <td class="mono">${fmtDate(g.date)}</td><td>${list(g.parents, glink, ', ') || '<span class="mute">none</span>'}</td>
+    $('#rows').innerHTML = list(rows, g => `<tr><td>${swatch(g.date)}${glink(g.name)}${g.aliases.length ? ` <span class="small mute">(${g.aliases.map(esc).join(', ')})</span>` : ''}${g.guide ? ' <span class="tag c">guide</span>' : ''}</td>
+      <td class="mono">${fmtDate(g.date)}${g.date_note ? ' <span class="tag b" title="' + esc(g.date_note) + '">date note</span>' : ''}</td><td>${list(g.parents, glink, ', ') || '<span class="mute">none</span>'}</td>
       <td>${list(g.characteristics, c => `<span class="tag">${esc(c)}</span>`)}</td></tr>`);
   };
   ['#f-q', '#f-era', '#f-kind'].forEach(s => $(s).addEventListener('input', draw));
@@ -46,6 +46,8 @@ route('genre', async ([name]) => {
   app().innerHTML = `
   <p class="kicker"><a href="#/genres">Genres</a> / ${esc(eraOf(g.date).label)}</p>
   <h1 class="glow">${esc(g.name)}</h1>
+  ${g.aliases.length ? `<p class="mute">Also called: ${g.aliases.map(esc).join(', ')}</p>` : ''}
+  ${g.date_note ? `<div class="callout"><b>Date note:</b> ${esc(g.date_note)}.</div>` : ''}
   <div class="kv">
     <div><b>${fmtDate(g.date)}</b><span>first date</span></div>
     <div><b>${g.parents.length}</b><span>parent genre${g.parents.length === 1 ? '' : 's'}</span></div>

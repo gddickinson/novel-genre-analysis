@@ -21,7 +21,8 @@ def load_genre_data(path=None):
         path: Optional path to JSON file. Defaults to genre_data.json in project root.
 
     Returns:
-        Dictionary mapping genre names to their data (date, parents, characteristics).
+        Dictionary mapping genre names to their data (date, parents, characteristics; optional
+        aliases: other names merged into this entry, date_note: a caveat about the date).
     """
     path = path or _DATA_FILE
     with open(path, "r", encoding="utf-8") as f:
