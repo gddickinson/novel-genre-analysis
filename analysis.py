@@ -134,9 +134,9 @@ def create_phylogenetic_tree(genre_data):
         new_node.children = [nodes[i], nodes[j]]
         new_node.height = branch_length
 
+        # _update_matrix keeps the merged cluster at row i and drops row j: mirror that in the node list.
+        nodes[i] = new_node
         nodes.pop(j)
-        nodes.pop(i)
-        nodes.append(new_node)
         matrix = _update_matrix(matrix, i, j)
 
     return nodes[0]

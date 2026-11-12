@@ -110,6 +110,30 @@ class TestPhylogeneticTree(unittest.TestCase):
         # Root should have children
         self.assertGreater(len(root.children), 0)
 
+    def test_merged_cluster_keeps_matrix_row(self):
+        """Regression: after a merge, the tree's node list must stay aligned with the matrix rows.
+
+        Sorted names are A, B, C, D. B and C are closest, so they merge first (matrix rows 1 and 2); then A and D
+        (distance ~0.30) must pair. The old code appended the merged node at the end of the node list while the
+        matrix kept it at row 1, so the second merge joined A with (B, C) instead of with D.
+        """
+        data = {
+            "A": {"date": 1800, "parents": [], "characteristics": ["x", "y"]},
+            "D": {"date": 1810, "parents": [], "characteristics": ["x", "y"]},
+            "B": {"date": 2000, "parents": [], "characteristics": ["p", "q"]},
+            "C": {"date": 2005, "parents": [], "characteristics": ["p", "q"]},
+        }
+        root = create_phylogenetic_tree(data)
+
+        def clade(node):
+            return frozenset([node.name]) if not node.children else frozenset().union(*map(clade, node.children))
+
+        self.assertEqual({clade(c) for c in root.children}, {frozenset("AD"), frozenset("BC")})
+        _, matrix = create_distance_matrix(data)
+        heights = sorted(c.height for c in root.children)
+        self.assertAlmostEqual(heights[0], matrix[1, 2] / 2)  # (B, C)
+        self.assertAlmostEqual(heights[1], matrix[0, 3] / 2)  # (A, D)
+
     def test_node_attributes(self):
         """Node has expected attributes."""
         node = Node("test", branch_length=1.5)
